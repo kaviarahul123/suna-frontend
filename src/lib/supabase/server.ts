@@ -4,13 +4,20 @@ import { cookies } from 'next/headers';
 
 export const createClient = async () => {
   const cookieStore = await cookies();
-  let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  let supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  let supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+
+  // Fallback dummy values for build time / static generation if variables are missing
+  if (!supabaseUrl) {
+    supabaseUrl = 'https://placeholder-project.supabase.co';
+  }
+  if (!supabaseAnonKey) {
+    supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+  }
 
   // Ensure the URL is in the proper format with http/https protocol
-  if (supabaseUrl && !supabaseUrl.startsWith('http')) {
-    // If it's just a hostname without protocol, add http://
-    supabaseUrl = `http://${supabaseUrl}`;
+  if (!supabaseUrl.startsWith('http')) {
+    supabaseUrl = `https://${supabaseUrl}`;
   }
 
   // console.log('[SERVER] Supabase URL:', supabaseUrl);
